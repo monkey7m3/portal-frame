@@ -36,6 +36,11 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # The legacy `tools` SDK package has been retired. Gradle downloads
+          # the compile/build platform packages declared by the Android project.
+          packages: platform-tools
+          accept-android-sdk-licenses: true
 
       - name: Build debug APK + run unit tests
         run: |
