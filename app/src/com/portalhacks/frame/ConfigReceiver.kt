@@ -124,6 +124,9 @@ class ConfigReceiver : BroadcastReceiver() {
         const val KEY_KEN_BURNS = "ken_burns"   // boolean: cinematic pan/zoom
         const val KEY_CLOCK = "clock"           // boolean: clock + weather overlay
         const val KEY_CLOCK_FACE = "clock_face" // which overlay clock style to draw (see CLOCK_FACES)
+        const val KEY_CLOCK_WEEKDAY = "clock_weekday" // show weekday as its own overlay element
+        const val KEY_CLOCK_DATE = "clock_date" // show calendar date as its own overlay element
+        const val KEY_CLOCK_WEATHER = "clock_weather" // show weather as its own overlay element
         const val DEFAULT_CLOCK_FACE = "classic"
         const val KEY_CLOCK_LOW_LIGHT = "clock_low_light" // boolean: clock-only in low light
         const val KEY_NIGHT = "night"           // boolean: warm night dimming
@@ -161,7 +164,9 @@ class ConfigReceiver : BroadcastReceiver() {
         //   adb shell am broadcast -n com.portalhacks.frame/.ConfigReceiver --ez ken_burns false
         private val BOOL_EXTRAS = arrayOf(
             arrayOf("shuffle", KEY_SHUFFLE), arrayOf("pairs", KEY_PAIRS), arrayOf("ken_burns", KEY_KEN_BURNS),
-            arrayOf("clock", KEY_CLOCK), arrayOf("clock_low_light", KEY_CLOCK_LOW_LIGHT),
+            arrayOf("clock", KEY_CLOCK), arrayOf("clock_weekday", KEY_CLOCK_WEEKDAY),
+            arrayOf("clock_date", KEY_CLOCK_DATE), arrayOf("clock_weather", KEY_CLOCK_WEATHER),
+            arrayOf("clock_low_light", KEY_CLOCK_LOW_LIGHT),
             arrayOf("night", KEY_NIGHT), arrayOf("on_this_day", KEY_ON_THIS_DAY),
             arrayOf("captions", KEY_CAPTIONS), arrayOf("face_framing", KEY_FACE), arrayOf("ambient_color", KEY_AMBIENT),
             arrayOf("auto_enhance", KEY_ENHANCE), arrayOf("zoom_fill", KEY_ZOOM_FILL),
