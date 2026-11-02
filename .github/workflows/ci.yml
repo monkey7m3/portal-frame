@@ -78,17 +78,26 @@ jobs:
           # discover or scan its Gradle scripts during feature-branch analysis.
           rm -rf "$RUNNER_TEMP/baseline-source"
 
-      - name: Commit inherited KtLint baseline once
+      - name: Remap inherited KtLint baseline to current source lines
         if: ${{ github.ref != 'refs/heads/main' }}
         run: |
-          if git ls-files --error-unmatch app/config/ktlint/baseline.xml >/dev/null 2>&1; then
-            echo "Inherited KtLint baseline is already committed."
-            exit 0
-          fi
+          # KtLint baselines use line numbers. Keep an inherited finding only when
+          # its original main-branch source line is unchanged, and move it to that
+          # line's current location. Edited/new lines remain subject to KtLint.
+          git fetch origin main --depth=1
+          python3 remap_ktlint_baseline.py app/config/ktlint/baseline.xml
+
+      - name: Commit inherited KtLint baseline
+        if: ${{ github.ref != 'refs/heads/main' }}
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add app/config/ktlint/baseline.xml
-          git commit -m "Add inherited KtLint baseline [skip ci]"
+          if git diff --cached --quiet; then
+            echo "Inherited KtLint baseline is already up to date."
+            exit 0
+          fi
+          git commit -m "Update inherited KtLint baseline [skip ci]"
           git push
 
       - name: Static analysis (Android Lint, detekt, ktlint)
