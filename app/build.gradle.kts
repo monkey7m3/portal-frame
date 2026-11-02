@@ -96,6 +96,11 @@ kotlin {
     }
 }
 
+// KtLint baseline records the inherited style findings so new violations still fail CI.
+ktlint {
+    baseline.set(file("config/ktlint/baseline.xml"))
+}
+
 // Kotlin static analysis. buildUponDefaultConfig uses detekt's default rules; the baseline
 // grandfathers pre-existing findings so only new issues fail the build (regenerate with
 // `./gradlew detektBaseline`).
