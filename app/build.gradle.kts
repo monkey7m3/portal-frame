@@ -16,7 +16,10 @@ val keystoreProps = Properties().apply {
     val f = rootProject.file("keystore.properties")
     if (f.exists()) FileInputStream(f).use { load(it) }
 }
-fun releaseSecret(env: String, prop: String): String? =
+fun releaseSecret(
+    env: String,
+    prop: String,
+): String? =
     System.getenv(env) ?: keystoreProps.getProperty(prop)
 
 android {
