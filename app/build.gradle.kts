@@ -12,15 +12,15 @@ plugins {
 // Release signing inputs, read from env vars (CI) or a local, git-ignored
 // keystore.properties (local release builds). Nothing secret is committed.
 // See RELEASING.md.
-val keystoreProps = Properties().apply {
-    val f = rootProject.file("keystore.properties")
-    if (f.exists()) FileInputStream(f).use { load(it) }
+val keystoreProps =
+    Properties().apply {
+        val f = rootProject.file("keystore.properties")
+        if (f.exists()) FileInputStream(f).use { load(it) }
+    }
+
+fun releaseSecret(env: String, prop: String): String? {
+    return System.getenv(env) ?: keystoreProps.getProperty(prop)
 }
-fun releaseSecret(
-    env: String,
-    prop: String,
-): String? =
-    System.getenv(env) ?: keystoreProps.getProperty(prop)
 
 android {
     namespace = "com.portalhacks.frame"
