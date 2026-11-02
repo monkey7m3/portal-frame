@@ -150,7 +150,8 @@ class SlideshowController(
     private var selectedClockElement = -1 // -1 selects the entire group
     private val elementNames = arrayOf("weekday", "time", "date", "weather")
 
-    private fun clockElements(): Array<TextView> = arrayOf(weekdayLine, clock, dateLine, weatherLine)
+    private fun clockElements(): Array<TextView> =
+        arrayOf(weekdayLine, clock, dateLine, weatherLine)
 
     private fun loadElementTransforms() {
         val p = context.getSharedPreferences(ConfigReceiver.PREFS, Context.MODE_PRIVATE)
@@ -176,32 +177,41 @@ class SlideshowController(
     }
 
     private fun hitClockElement(x: Float, y: Float): Int {
-        if (clockBox.width == 0 || clockScale == 0f) return -1
-        val px = (x - clockBox.left - clockBox.translationX - clockBox.width / 2f) /
-            clockScale + clockBox.width / 2f
-        val py = (y - clockBox.top - clockBox.translationY - clockBox.height / 2f) /
-            clockScale + clockBox.height / 2f
+        if (clockBox.width == 0 || clockScale == 0f) {
+            return -1
+        }
+        val px =
+            (x - clockBox.left - clockBox.translationX - clockBox.width / 2f) /
+                clockScale + clockBox.width / 2f
+        val py =
+            (y - clockBox.top - clockBox.translationY - clockBox.height / 2f) /
+                clockScale + clockBox.height / 2f
         val views = clockElements()
         for (i in views.indices.reversed()) {
             val v = views[i]
-            if (v.visibility != View.VISIBLE || v.width == 0) continue
+            if (v.visibility != View.VISIBLE || v.width == 0) {
+                continue
+            }
             val cx = v.left + v.translationX + v.width / 2f
             val cy = v.top + v.translationY + v.height / 2f
             val pad = Ui.dp(context, 12f)
             if (abs(px - cx) <= v.width * v.scaleX / 2f + pad &&
                 abs(py - cy) <= v.height * v.scaleY / 2f + pad
-            ) return i
+            ) {
+                return i
+            }
         }
         return -1
     }
 
     private fun selectClockElement(index: Int) {
         selectedClockElement = index
-        clockEditHint.text = if (index < 0) {
+        clockEditHint.text =
+            if (index < 0) {
             "Group mode · drag/pinch all · tap an element to select · tap outside to finish"
-        } else {
-            elementNames[index] + " selected · drag/pinch · tap empty group area for group mode"
-        }
+            } else {
+                elementNames[index] + " selected · drag/pinch · tap empty group area for group mode"
+            }
     }
 
     // Sticky-note state. noteText is the manually-set note (over ADB / Settings; "" = none). When
@@ -546,7 +556,10 @@ class SlideshowController(
         root.addView(binBox)
         root.addView(buildTouchOverlay())
         applyNote()
-        clockBox.post { applyClockTransformNow(); loadElementTransforms() } // apply saved position/size once laid out
+        clockBox.post {
+            applyClockTransformNow()
+            loadElementTransforms()
+        } // apply saved position/size once laid out
 
         // Run clock/night + weather + shimmer from the start so they're alive even
         // during the initial "Loading…" wait before the first photo arrives.
@@ -923,15 +936,19 @@ class SlideshowController(
                         if (editingClock) {
                             if (!editGestureActive && !pinching) {
                                 val hit = hitClockElement(downX, downY)
-                                if (hit >= 0) selectClockElement(hit)
-                                else if (isOnClock(downX, downY)) selectClockElement(-1)
+                                if (hit >= 0) {
+                                    selectClockElement(hit)
+                                } else if (isOnClock(downX, downY)) {
+                                    selectClockElement(-1)
+                                }
                                 editGestureActive = true
                             }
                             if (pinching && e.pointerCount >= 2) {
                                 val d = twoPointerDist(e)
                                 if (pinchStartDist > 0f) {
-                                    val scale = (pinchBaseScale * d / pinchStartDist)
-                                        .coerceIn(CLOCK_SCALE_MIN, CLOCK_SCALE_MAX)
+                                    val scale =
+                                        (pinchBaseScale * d / pinchStartDist)
+                                            .coerceIn(CLOCK_SCALE_MIN, CLOCK_SCALE_MAX)
                                     if (selectedClockElement < 0) {
                                         clockScale = scale
                                         applyClockScale()
@@ -991,9 +1008,13 @@ class SlideshowController(
                                 abs(e.y - downY) < TAP_SLOP && dt < TAP_TIMEOUT_MS
                             ) {
                                 val hit = hitClockElement(e.x, e.y)
-                                if (hit >= 0) selectClockElement(hit)
-                                else if (isOnClock(e.x, e.y)) selectClockElement(-1)
-                                else exitClockEdit()
+                                if (hit >= 0) {
+                                    selectClockElement(hit)
+                                } else if (isOnClock(e.x, e.y)) {
+                                    selectClockElement(-1)
+                                } else {
+                                    exitClockEdit()
+                                }
                             } else {
                                 persistClockTransform() // a drag/pinch ended — stay in edit mode
                                 persistElementTransforms()
@@ -1016,7 +1037,11 @@ class SlideshowController(
                     MotionEvent.ACTION_CANCEL -> {
                         cancelLong()
                         if (draggingNote) { draggingNote = false; persistNotePos(); hideBin() }
-                        if (editingClock) { pinching = false; persistClockTransform(); persistElementTransforms() }
+                        if (editingClock) {
+                            pinching = false
+                            persistClockTransform()
+                            persistElementTransforms()
+                        }
                         return true
                     }
                     else -> return true
