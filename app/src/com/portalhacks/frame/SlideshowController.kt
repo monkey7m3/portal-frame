@@ -904,7 +904,12 @@ class SlideshowController(
                             cancelLong()
                             pinching = true
                             pinchStartDist = twoPointerDist(e)
-                            pinchBaseScale = if (selectedClockElement < 0) clockScale else clockElements()[selectedClockElement].scaleX
+                            pinchBaseScale =
+                                if (selectedClockElement < 0) {
+                                    clockScale
+                                } else {
+                                    clockElements()[selectedClockElement].scaleX
+                                }
                         }
                         return true
                     }
