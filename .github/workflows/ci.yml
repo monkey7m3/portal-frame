@@ -37,7 +37,7 @@ jobs:
           path: baseline-source
 
       - name: Move KtLint baseline source outside workspace
-        if: ${{ github.ref != 'refs/heads/main' && !hashFiles('app/config/ktlint/baseline.xml') }}
+        if: ${{ github.ref != 'refs/heads/main' }}
         run: mv baseline-source "$RUNNER_TEMP/baseline-source"
 
       - name: Set up JDK 17
