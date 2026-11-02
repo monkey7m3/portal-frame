@@ -742,7 +742,9 @@ class SlideshowController(
             return
         }
         clockFaceView.visibility = View.GONE
-        clock.visibility = View.VISIBLE
+        val timeEnabled = context.getSharedPreferences(ConfigReceiver.PREFS, Context.MODE_PRIVATE)
+            .getBoolean(ConfigReceiver.KEY_CLOCK_TIME, true)
+        clock.visibility = if (timeEnabled) View.VISIBLE else View.GONE
         var timeSp = 80f
         var typeface = Ui.clockFace(context)
         var showDate = true
@@ -2046,7 +2048,7 @@ class SlideshowController(
         // run a multi-hour ValueAnimator; past this the motion holds at its end frame.
         private const val KEN_BURNS_MAX_MS = 30_000L
         private const val CLOCK_SCALE_MIN = 0.5f // pinch-to-resize bounds for the clock widget
-        private const val CLOCK_SCALE_MAX = 3.0f
+        private const val CLOCK_SCALE_MAX = 8.0f
         private const val SWIPE_FADE_MS = 300L // manual swipe fade
         private const val SWIPE_MIN_DISTANCE = 60f
         private const val TAP_SLOP = 30f
