@@ -78,13 +78,16 @@ class SlideshowController(
     private val clockOnlyBox: LinearLayout
     private val clockOnlyScrim: View // opaque black backing so the low-light clock never shows over a photo
     private val dateLine: TextView
+    private val weekdayLine: TextView
+    private val weatherLine: TextView
     private val clockEditHint: TextView // "drag/pinch/tap" hint shown while editing the clock
     private val noteBox: TextView // sticky-note overlay (top-right); hidden when empty
     private val binBox: LinearLayout // trash target shown while dragging the note
     private val binGlyph: TextView // the bin icon inside binBox (tinted on hover)
     private val shimmer: ShimmerView
     private val timeFmt: DateFormat
-    private val dateFmt = SimpleDateFormat("EEE, MMM d", Locale.getDefault())
+    private val weekdayFmt = SimpleDateFormat("EEEE", Locale.getDefault())
+    private val dateFmt = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
     private val monthYearFmt = SimpleDateFormat("MMM yyyy", Locale.getDefault())
     private val fahrenheit = "US" == Locale.getDefault().country
     private val nightTint: View // warm overlay that fades in at night (Ambient-EQ-lite)
@@ -108,7 +111,10 @@ class SlideshowController(
     private val shuffle: Boolean // play photos in random order
     private val pairs: Boolean // pair two photos to fill the screen (side-by-side or stacked)
     private val kenBurns: Boolean // cinematic slow pan + zoom while held
-    private val showClock: Boolean // clock + weather overlay
+    private val showClock: Boolean // master switch for the clock overlay
+    private val showWeekday: Boolean
+    private val showDate: Boolean
+    private val showWeather: Boolean
     private val clockFaceId: String // which overlay clock style to draw (see applyClockFace)
     private val nightMode: Boolean // warm night dimming
     private val onThisDay: Boolean // surface "N years ago today" memories
@@ -170,6 +176,9 @@ class SlideshowController(
         pairs = prefs.getBoolean(ConfigReceiver.KEY_PAIRS, ConfigReceiver.DEFAULT_PAIRS)
         kenBurns = prefs.getBoolean(ConfigReceiver.KEY_KEN_BURNS, ConfigReceiver.DEFAULT_KEN_BURNS)
         showClock = prefs.getBoolean(ConfigReceiver.KEY_CLOCK, ConfigReceiver.DEFAULT_CLOCK)
+        showWeekday = prefs.getBoolean(ConfigReceiver.KEY_CLOCK_WEEKDAY, true)
+        showDate = prefs.getBoolean(ConfigReceiver.KEY_CLOCK_DATE, true)
+        showWeather = prefs.getBoolean(ConfigReceiver.KEY_CLOCK_WEATHER, true)
         clockFaceId = prefs.getString(ConfigReceiver.KEY_CLOCK_FACE, ConfigReceiver.DEFAULT_CLOCK_FACE)
             ?: ConfigReceiver.DEFAULT_CLOCK_FACE
         nightMode = prefs.getBoolean(ConfigReceiver.KEY_NIGHT, ConfigReceiver.DEFAULT_NIGHT)
@@ -269,15 +278,27 @@ class SlideshowController(
         val md = BitmapDrawable(context.resources, Ui.crescent(moonPx, 0xFF5FA8FF.toInt()))
         md.setBounds(0, 0, moonPx, moonPx)
         moonDrawable = md
+        weekdayLine = TextView(context)
+        weekdayLine.setTextColor(0xFFF0F0F0.toInt())
+        weekdayLine.typeface = Ui.medium(context)
+        weekdayLine.setTextSize(TypedValue.COMPLEX_UNIT_SP, 34f)
+        weekdayLine.setShadowLayer(8f, 0f, 1f, Color.BLACK)
         dateLine = TextView(context)
         dateLine.setTextColor(0xFFF0F0F0.toInt())
         dateLine.typeface = Ui.medium(context)
-        dateLine.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
+        dateLine.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
         dateLine.setShadowLayer(8f, 0f, 1f, Color.BLACK)
+        weatherLine = TextView(context)
+        weatherLine.setTextColor(0xFFF0F0F0.toInt())
+        weatherLine.typeface = Ui.medium(context)
+        weatherLine.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+        weatherLine.setShadowLayer(8f, 0f, 1f, Color.BLACK)
         clockBox = LinearLayout(context)
         clockBox.orientation = LinearLayout.VERTICAL
+        clockBox.addView(weekdayLine)
         clockBox.addView(clock)
         clockBox.addView(dateLine)
+        clockBox.addView(weatherLine)
         clockFaceView = ClockFaceView(context)
         clockFaceView.visibility = View.GONE
         clockBox.addView(clockFaceView)
@@ -641,7 +662,9 @@ class SlideshowController(
             clockFaceView.setFace(clockFaceId)
             clockFaceView.visibility = View.VISIBLE
             clock.visibility = View.GONE
+            weekdayLine.visibility = View.GONE
             dateLine.visibility = View.GONE
+            weatherLine.visibility = View.GONE
             return
         }
         clockFaceView.visibility = View.GONE
@@ -657,8 +680,10 @@ class SlideshowController(
         }
         clock.setTextSize(TypedValue.COMPLEX_UNIT_SP, timeSp)
         clock.typeface = typeface
-        dateLine.visibility = if (showDate) View.VISIBLE else View.GONE
-        bigDate.visibility = if (showDate) View.VISIBLE else View.GONE
+        weekdayLine.visibility = if (showDate && showWeekday) View.VISIBLE else View.GONE
+        dateLine.visibility = if (showDate && this.showDate) View.VISIBLE else View.GONE
+        weatherLine.visibility = if (showDate && showWeather) View.VISIBLE else View.GONE
+        bigDate.visibility = if (showDate && this.showDate) View.VISIBLE else View.GONE
     }
 
     // ------------------------------------------------ clock move/resize
@@ -1591,6 +1616,7 @@ class SlideshowController(
             0f
         }
         val time = timeFmt.format(c.time)
+        val weekday = weekdayFmt.format(c.time)
         val date = dateFmt.format(c.time)
         // Centered low-light clock (no weather) — kept current even when the overlay is off.
         bigClock.text = time
@@ -1604,26 +1630,26 @@ class SlideshowController(
         if (!showClock) {
             return // night tint still updates above; the overlay clock/weather text is off
         }
+        weekdayLine.text = weekday
         clock.text = time
-        trimLeftBearing(clock)
+        dateLine.text = date
         val w = weather
-        if (w == null) {
-            dateLine.text = date
-        } else if (w.moon) {
-            // Clear night: draw a blue crescent (color emoji can't be tinted) + temp.
-            val sb = SpannableStringBuilder("$date   ")
-            val s = sb.length
-            sb.append(" ")
+        weatherLine.text = if (w == null) "" else if (w.moon) {
+            // Clear night: draw a blue crescent (color emoji can't be tinted) + temperature.
+            val sb = SpannableStringBuilder(" ")
             sb.setSpan(
                 ImageSpan(moonDrawable, ImageSpan.ALIGN_CENTER),
-                s, s + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
+                0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
             )
             sb.append("  ").append(w.temp.toString()).append("°")
-            dateLine.text = sb
+            sb
         } else {
-            dateLine.text = date + "   " + w.label()
+            w.label()
         }
+        trimLeftBearing(weekdayLine)
+        trimLeftBearing(clock)
         trimLeftBearing(dateLine)
+        trimLeftBearing(weatherLine)
     }
 
     /**
