@@ -150,8 +150,7 @@ class SlideshowController(
     private var selectedClockElement = -1 // -1 selects the entire group
     private val elementNames = arrayOf("weekday", "time", "date", "weather")
 
-    private fun clockElements(): Array<TextView> =
-        arrayOf(weekdayLine, clock, dateLine, weatherLine)
+    private fun clockElements(): Array<TextView> = arrayOf(weekdayLine, clock, dateLine, weatherLine)
 
     private fun loadElementTransforms() {
         val p = context.getSharedPreferences(ConfigReceiver.PREFS, Context.MODE_PRIVATE)
@@ -176,7 +175,10 @@ class SlideshowController(
         e.apply()
     }
 
-    private fun hitClockElement(x: Float, y: Float): Int {
+    private fun hitClockElement(
+        x: Float,
+        y: Float,
+    ): Int {
         if (clockBox.width == 0 || clockScale == 0f) {
             return -1
         }
@@ -208,7 +210,7 @@ class SlideshowController(
         selectedClockElement = index
         clockEditHint.text =
             if (index < 0) {
-            "Group mode · drag/pinch all · tap an element to select · tap outside to finish"
+                "Group mode · drag/pinch all · tap an element to select · tap outside to finish"
             } else {
                 elementNames[index] + " selected · drag/pinch · tap empty group area for group mode"
             }
