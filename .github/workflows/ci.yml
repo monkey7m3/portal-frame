@@ -61,7 +61,7 @@ jobs:
           ./gradlew assembleDebug testDebugUnitTest --no-daemon --stacktrace
 
       - name: Generate inherited KtLint baseline
-        if: ${{ github.ref != 'refs/heads/main' && !hashFiles('app/config/ktlint/baseline.xml') }}
+        if: ${{ github.ref != 'refs/heads/main' }}
         run: |
           # Reuse the feature branch's KtLint baseline configuration while running
           # the baseline task against main's original Kotlin source.
