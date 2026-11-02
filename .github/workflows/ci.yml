@@ -89,6 +89,7 @@ jobs:
           path: |
             app/build/reports/lint-results-debug.html
             app/build/reports/detekt/
+            app/build/reports/ktlint/
           if-no-files-found: ignore
 
       - name: Upload unit test report
