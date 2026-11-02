@@ -56,7 +56,9 @@ jobs:
         run: |
           APK=app/build/outputs/apk/release/app-release.apk
           if [ ! -f "$APK" ]; then echo "release APK not found"; exit 1; fi
-          OUT="Frame-${{ github.ref_name }}.apk"
+          # Branch refs contain slashes; use a filesystem-safe name for artifacts.
+          SAFE_REF="${GITHUB_REF_NAME//\//-}"
+          OUT="Frame-${SAFE_REF}.apk"
           cp "$APK" "$OUT"
           sha256sum "$OUT" | tee "$OUT.sha256"
           echo "apk=$OUT" >> "$GITHUB_OUTPUT"
