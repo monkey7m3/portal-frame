@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build-test:
@@ -30,7 +30,7 @@ jobs:
       # Generate the KtLint baseline from the unmodified main-branch source, not
       # from this feature branch (which would silently baseline newly introduced issues).
       - name: Checkout KtLint baseline source
-        if: ${{ github.ref != 'refs/heads/main' && !hashFiles('app/config/ktlint/baseline.xml') }}
+        if: ${{ github.ref != 'refs/heads/main' }}
         uses: actions/checkout@v4
         with:
           ref: main
@@ -86,19 +86,6 @@ jobs:
           # line's current location. Edited/new lines remain subject to KtLint.
           git fetch origin main --depth=1
           python3 remap_ktlint_baseline.py app/config/ktlint/baseline.xml
-
-      - name: Commit inherited KtLint baseline
-        if: ${{ github.ref != 'refs/heads/main' }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/config/ktlint/baseline.xml
-          if git diff --cached --quiet; then
-            echo "Inherited KtLint baseline is already up to date."
-            exit 0
-          fi
-          git commit -m "Update inherited KtLint baseline [skip ci]"
-          git push
 
       - name: Static analysis (Android Lint, detekt, ktlint)
         run: ./gradlew lintDebug detekt ktlintCheck --no-daemon --stacktrace
