@@ -363,6 +363,9 @@ class SlideshowController(
         weatherLine.setShadowLayer(8f, 0f, 1f, Color.BLACK)
         clockBox = LinearLayout(context)
         clockBox.orientation = LinearLayout.VERTICAL
+        // Translated children may extend outside the original vertical stack.
+        clockBox.clipChildren = false
+        clockBox.clipToPadding = false
         clockBox.addView(weekdayLine)
         clockBox.addView(clock)
         clockBox.addView(dateLine)
@@ -790,6 +793,7 @@ class SlideshowController(
 
     /** True if (x,y) in root coords falls on the clock (its scaled bounds, padded for easy grab). */
     private fun isOnClock(x: Float, y: Float): Boolean {
+        if (hitClockElement(x, y) >= 0) return true
         if (clockBox.width == 0) return false
         val pad = Ui.dp(context, 24f)
         val cx = clockBox.left + clockBox.translationX + clockBox.width / 2f
@@ -954,6 +958,10 @@ class SlideshowController(
                                     selectClockElement(hit)
                                 } else if (isOnClock(downX, downY)) {
                                     selectClockElement(-1)
+                                } else {
+                                    lastX = e.x
+                                    lastY = e.y
+                                    return true
                                 }
                                 editGestureActive = true
                             }
@@ -974,7 +982,9 @@ class SlideshowController(
                                 }
                             } else {
                                 if (selectedClockElement < 0) {
-                                    dragClockBy(e.x - lastX, e.y - lastY)
+                                    if (isOnClock(downX, downY)) {
+                                        dragClockBy(e.x - lastX, e.y - lastY)
+                                    }
                                 } else {
                                     val target = clockElements()[selectedClockElement]
                                     target.translationX += (e.x - lastX) / clockScale
