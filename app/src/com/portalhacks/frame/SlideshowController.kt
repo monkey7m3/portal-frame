@@ -86,8 +86,6 @@ class SlideshowController(
     private val binGlyph: TextView // the bin icon inside binBox (tinted on hover)
     private val shimmer: ShimmerView
     private val timeFmt: DateFormat
-    private val weekdayFmt = SimpleDateFormat("EEEE", Locale.getDefault())
-    private val dateFmt = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
     private val monthYearFmt = SimpleDateFormat("MMM yyyy", Locale.getDefault())
     private val fahrenheit = "US" == Locale.getDefault().country
     private val nightTint: View // warm overlay that fades in at night (Ambient-EQ-lite)
@@ -742,9 +740,7 @@ class SlideshowController(
             return
         }
         clockFaceView.visibility = View.GONE
-        val timeEnabled = context.getSharedPreferences(ConfigReceiver.PREFS, Context.MODE_PRIVATE)
-            .getBoolean(ConfigReceiver.KEY_CLOCK_TIME, true)
-        clock.visibility = if (timeEnabled) View.VISIBLE else View.GONE
+        clock.visibility = if (isTimeElementEnabled()) View.VISIBLE else View.GONE
         var timeSp = 80f
         var typeface = Ui.clockFace(context)
         var showDate = true
@@ -1749,6 +1745,33 @@ class SlideshowController(
         if (clockFaceId == "analog") handler.postDelayed(secondsTick, 1000L)
     }
 
+    private fun isTimeElementEnabled(): Boolean =
+        context.getSharedPreferences(ConfigReceiver.PREFS, Context.MODE_PRIVATE)
+            .getBoolean(ConfigReceiver.KEY_CLOCK_TIME, true)
+
+    private fun formattedClockParts(date: java.util.Date): Triple<String, String, String> {
+        val p = context.getSharedPreferences(ConfigReceiver.PREFS, Context.MODE_PRIVATE)
+        val use24Hour = when (p.getString(ConfigReceiver.KEY_CLOCK_TIME_FORMAT, "System")) {
+            "12-hour" -> false
+            "24-hour" -> true
+            else -> android.text.format.DateFormat.is24HourFormat(context)
+        }
+        val pattern = when {
+            use24Hour -> "H:mm"
+            p.getBoolean(ConfigReceiver.KEY_CLOCK_AMPM, false) -> "h:mm a"
+            else -> "h:mm"
+        }
+        val weekdayPattern =
+            if (p.getString(ConfigReceiver.KEY_CLOCK_WEEKDAY_FORMAT, "Full") == "Abbreviated") "EEE" else "EEEE"
+        val datePattern = p.getString(ConfigReceiver.KEY_CLOCK_DATE_FORMAT, "MMM d, yyyy") ?: "MMM d, yyyy"
+        val locale = Locale.getDefault()
+        return Triple(
+            SimpleDateFormat(pattern, locale).format(date),
+            SimpleDateFormat(weekdayPattern, locale).format(date),
+            SimpleDateFormat(datePattern, locale).format(date),
+        )
+    }
+
     private fun updateClock() {
         val c = Calendar.getInstance()
         nightTint.alpha = if (nightMode) {
@@ -1756,19 +1779,7 @@ class SlideshowController(
         } else {
             0f
         }
-        val formatPrefs = context.getSharedPreferences(ConfigReceiver.PREFS, Context.MODE_PRIVATE)
-        val requestedTimeFormat = formatPrefs.getString(ConfigReceiver.KEY_CLOCK_TIME_FORMAT, "System")
-        val use24Hour = when (requestedTimeFormat) {
-            "12-hour" -> false
-            "24-hour" -> true
-            else -> android.text.format.DateFormat.is24HourFormat(context)
-        }
-        val timePattern = if (use24Hour) "H:mm" else if (formatPrefs.getBoolean(ConfigReceiver.KEY_CLOCK_AMPM, false)) "h:mm a" else "h:mm"
-        val time = SimpleDateFormat(timePattern, Locale.getDefault()).format(c.time)
-        val weekdayPattern = if (formatPrefs.getString(ConfigReceiver.KEY_CLOCK_WEEKDAY_FORMAT, "Full") == "Abbreviated") "EEE" else "EEEE"
-        val weekday = SimpleDateFormat(weekdayPattern, Locale.getDefault()).format(c.time)
-        val datePattern = formatPrefs.getString(ConfigReceiver.KEY_CLOCK_DATE_FORMAT, "MMM d, yyyy") ?: "MMM d, yyyy"
-        val date = SimpleDateFormat(datePattern, Locale.getDefault()).format(c.time)
+        val (time, weekday, date) = formattedClockParts(c.time)
         // Centered low-light clock (no weather) — kept current even when the overlay is off.
         bigClock.text = time
         bigDate.text = date
