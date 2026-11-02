@@ -728,6 +728,12 @@ class SlideshowController(
      * centred clock ([bigClock]) follows the same "show the date line?" choice for consistency.
      * The user's move/resize transform ([applyClockTransform]) still composes on top of this.
      */
+    private fun applyTimeVisibility() {
+        val enabled = context.getSharedPreferences(ConfigReceiver.PREFS, Context.MODE_PRIVATE)
+            .getBoolean(ConfigReceiver.KEY_CLOCK_TIME, true)
+        clock.visibility = if (enabled) View.VISIBLE else View.GONE
+    }
+
     private fun applyClockFace() {
         // The custom-drawn faces (flip/nixie/analog) replace the text clock entirely.
         if (clockFaceId in ClockFaceView.FACES) {
@@ -740,7 +746,7 @@ class SlideshowController(
             return
         }
         clockFaceView.visibility = View.GONE
-        clock.visibility = if (isTimeElementEnabled()) View.VISIBLE else View.GONE
+        applyTimeVisibility()
         var timeSp = 80f
         var typeface = Ui.clockFace(context)
         var showDate = true
@@ -1744,10 +1750,6 @@ class SlideshowController(
         handler.postDelayed(clockTick, 60000 - System.currentTimeMillis() % 60000)
         if (clockFaceId == "analog") handler.postDelayed(secondsTick, 1000L)
     }
-
-    private fun isTimeElementEnabled(): Boolean =
-        context.getSharedPreferences(ConfigReceiver.PREFS, Context.MODE_PRIVATE)
-            .getBoolean(ConfigReceiver.KEY_CLOCK_TIME, true)
 
     private fun formattedClockParts(date: java.util.Date): Triple<String, String, String> {
         val p = context.getSharedPreferences(ConfigReceiver.PREFS, Context.MODE_PRIVATE)
