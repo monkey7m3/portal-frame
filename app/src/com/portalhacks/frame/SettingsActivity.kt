@@ -290,7 +290,32 @@ class SettingsActivity : ComponentActivity() {
                         subtitle = "Long-press the clock on the screensaver to move or resize the group.",
                     ) { tick++ }
                     Divider()
+                    ToggleRow("Time of day", ConfigReceiver.KEY_CLOCK_TIME, true) { tick++ }
+                    Divider()
+                    CycleRow("Time format", prefs.getString(ConfigReceiver.KEY_CLOCK_TIME_FORMAT, "System") ?: "System") {
+                        val options = listOf("System", "12-hour", "24-hour")
+                        val current = prefs.getString(ConfigReceiver.KEY_CLOCK_TIME_FORMAT, "System") ?: "System"
+                        prefs.edit().putString(ConfigReceiver.KEY_CLOCK_TIME_FORMAT, options[(options.indexOf(current) + 1) % options.size]).apply()
+                        tick++
+                    }
+                    Divider()
+                    ToggleRow("Show AM/PM (12-hour)", ConfigReceiver.KEY_CLOCK_AMPM, false) { tick++ }
+                    Divider()
                     ToggleRow("Weekday", ConfigReceiver.KEY_CLOCK_WEEKDAY, true) { tick++ }
+                    Divider()
+                    CycleRow("Weekday spelling", prefs.getString(ConfigReceiver.KEY_CLOCK_WEEKDAY_FORMAT, "Full") ?: "Full") {
+                        val options = listOf("Full", "Abbreviated")
+                        val current = prefs.getString(ConfigReceiver.KEY_CLOCK_WEEKDAY_FORMAT, "Full") ?: "Full"
+                        prefs.edit().putString(ConfigReceiver.KEY_CLOCK_WEEKDAY_FORMAT, options[(options.indexOf(current) + 1) % options.size]).apply()
+                        tick++
+                    }
+                    Divider()
+                    CycleRow("Date format", prefs.getString(ConfigReceiver.KEY_CLOCK_DATE_FORMAT, "MMM d, yyyy") ?: "MMM d, yyyy") {
+                        val options = listOf("MMM d, yyyy", "MMMM d, yyyy", "EEE, MMM d", "M/d/yyyy", "d MMM yyyy")
+                        val current = prefs.getString(ConfigReceiver.KEY_CLOCK_DATE_FORMAT, options[0]) ?: options[0]
+                        prefs.edit().putString(ConfigReceiver.KEY_CLOCK_DATE_FORMAT, options[(options.indexOf(current) + 1) % options.size]).apply()
+                        tick++
+                    }
                     Divider()
                     ToggleRow("Calendar date", ConfigReceiver.KEY_CLOCK_DATE, true) { tick++ }
                     Divider()
