@@ -47,6 +47,11 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleDebug testDebugUnitTest --no-daemon --stacktrace
 
+      - name: Generate KtLint baseline
+        run: |
+          ./gradlew ktlintGenerateBaseline --no-daemon
+          cat app/config/ktlint/baseline.xml
+
       - name: Static analysis (Android Lint, detekt, ktlint)
         run: ./gradlew lintDebug detekt ktlintCheck --no-daemon --stacktrace
 
