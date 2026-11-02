@@ -1754,9 +1754,19 @@ class SlideshowController(
         } else {
             0f
         }
-        val time = timeFmt.format(c.time)
-        val weekday = weekdayFmt.format(c.time)
-        val date = dateFmt.format(c.time)
+        val formatPrefs = context.getSharedPreferences(ConfigReceiver.PREFS, Context.MODE_PRIVATE)
+        val requestedTimeFormat = formatPrefs.getString(ConfigReceiver.KEY_CLOCK_TIME_FORMAT, "System")
+        val use24Hour = when (requestedTimeFormat) {
+            "12-hour" -> false
+            "24-hour" -> true
+            else -> android.text.format.DateFormat.is24HourFormat(context)
+        }
+        val timePattern = if (use24Hour) "H:mm" else if (formatPrefs.getBoolean(ConfigReceiver.KEY_CLOCK_AMPM, false)) "h:mm a" else "h:mm"
+        val time = SimpleDateFormat(timePattern, Locale.getDefault()).format(c.time)
+        val weekdayPattern = if (formatPrefs.getString(ConfigReceiver.KEY_CLOCK_WEEKDAY_FORMAT, "Full") == "Abbreviated") "EEE" else "EEEE"
+        val weekday = SimpleDateFormat(weekdayPattern, Locale.getDefault()).format(c.time)
+        val datePattern = formatPrefs.getString(ConfigReceiver.KEY_CLOCK_DATE_FORMAT, "MMM d, yyyy") ?: "MMM d, yyyy"
+        val date = SimpleDateFormat(datePattern, Locale.getDefault()).format(c.time)
         // Centered low-light clock (no weather) — kept current even when the overlay is off.
         bigClock.text = time
         bigDate.text = date
