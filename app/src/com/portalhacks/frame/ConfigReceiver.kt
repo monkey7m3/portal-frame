@@ -124,6 +124,11 @@ class ConfigReceiver : BroadcastReceiver() {
         const val KEY_KEN_BURNS = "ken_burns"   // boolean: cinematic pan/zoom
         const val KEY_CLOCK = "clock"           // boolean: clock + weather overlay
         const val KEY_CLOCK_FACE = "clock_face" // which overlay clock style to draw (see CLOCK_FACES)
+        const val KEY_CLOCK_TIME = "clock_time"
+        const val KEY_CLOCK_TIME_FORMAT = "clock_time_format"
+        const val KEY_CLOCK_AMPM = "clock_ampm"
+        const val KEY_CLOCK_WEEKDAY_FORMAT = "clock_weekday_format"
+        const val KEY_CLOCK_DATE_FORMAT = "clock_date_format"
         const val KEY_CLOCK_WEEKDAY = "clock_weekday" // show weekday as its own overlay element
         const val KEY_CLOCK_DATE = "clock_date" // show calendar date as its own overlay element
         const val KEY_CLOCK_WEATHER = "clock_weather" // show weather as its own overlay element
