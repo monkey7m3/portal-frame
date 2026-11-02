@@ -310,11 +310,16 @@ class SettingsActivity : ComponentActivity() {
                     }
                     Divider()
                     CycleRow("Clock position & size", "Reset") {
-                        prefs.edit()
+                        val editor = prefs.edit()
                             .putFloat(ConfigReceiver.KEY_CLOCK_DX, ConfigReceiver.DEFAULT_CLOCK_DX)
                             .putFloat(ConfigReceiver.KEY_CLOCK_DY, ConfigReceiver.DEFAULT_CLOCK_DY)
                             .putFloat(ConfigReceiver.KEY_CLOCK_SCALE, ConfigReceiver.DEFAULT_CLOCK_SCALE)
-                            .apply()
+                        for (element in arrayOf("weekday", "time", "date", "weather")) {
+                            editor.remove("clock_element_" + element + "_x")
+                            editor.remove("clock_element_" + element + "_y")
+                            editor.remove("clock_element_" + element + "_scale")
+                        }
+                        editor.apply()
                         tick++
                     }
                     Divider()
