@@ -79,8 +79,12 @@ jobs:
           rm -rf "$RUNNER_TEMP/baseline-source"
 
       - name: Commit inherited KtLint baseline once
-        if: ${{ github.ref != 'refs/heads/main' && !hashFiles('app/config/ktlint/baseline.xml') }}
+        if: ${{ github.ref != 'refs/heads/main' }}
         run: |
+          if git ls-files --error-unmatch app/config/ktlint/baseline.xml >/dev/null 2>&1; then
+            echo "Inherited KtLint baseline is already committed."
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add app/config/ktlint/baseline.xml
