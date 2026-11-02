@@ -33,6 +33,10 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # Avoid the retired SDK `tools` package; Gradle installs required platforms.
+          packages: platform-tools
+          accept-android-sdk-licenses: true
 
       - name: Decode release keystore
         run: echo "${{ secrets.FRAME_KEYSTORE_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/release.jks"
