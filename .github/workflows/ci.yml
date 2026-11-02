@@ -90,6 +90,7 @@ jobs:
             app/build/reports/lint-results-debug.html
             app/build/reports/detekt/
             app/build/reports/ktlint/
+            app/config/ktlint/baseline.xml
           if-no-files-found: ignore
 
       - name: Upload unit test report
