@@ -36,6 +36,10 @@ jobs:
           ref: main
           path: baseline-source
 
+      - name: Move KtLint baseline source outside workspace
+        if: ${{ github.ref != 'refs/heads/main' }}
+        run: mv baseline-source "$RUNNER_TEMP/baseline-source"
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -61,18 +65,18 @@ jobs:
         run: |
           # Reuse the feature branch's KtLint baseline configuration while running
           # the baseline task against main's original Kotlin source.
-          cp app/build.gradle.kts baseline-source/app/build.gradle.kts
-          chmod +x baseline-source/gradlew
+          cp app/build.gradle.kts "$RUNNER_TEMP/baseline-source/app/build.gradle.kts"
+          chmod +x "$RUNNER_TEMP/baseline-source/gradlew"
           (
-            cd baseline-source
+            cd "$RUNNER_TEMP/baseline-source"
             ./gradlew ktlintGenerateBaseline --no-daemon --stacktrace
           )
           mkdir -p app/config/ktlint
-          cp baseline-source/app/config/ktlint/baseline.xml app/config/ktlint/baseline.xml
+          cp "$RUNNER_TEMP/baseline-source/app/config/ktlint/baseline.xml" app/config/ktlint/baseline.xml
           test -s app/config/ktlint/baseline.xml
-          # The second checkout lives inside the workspace; remove it before
-          # static analysis so KtLint does not scan its copied Gradle scripts.
-          rm -rf baseline-source
+          # Keep the baseline checkout outside the workspace so KtLint cannot
+          # discover or scan its Gradle scripts during feature-branch analysis.
+          rm -rf "$RUNNER_TEMP/baseline-source"
 
       - name: Static analysis (Android Lint, detekt, ktlint)
         run: ./gradlew lintDebug detekt ktlintCheck --no-daemon --stacktrace
