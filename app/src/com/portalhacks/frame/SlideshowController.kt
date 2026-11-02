@@ -765,7 +765,10 @@ class SlideshowController(
         clockDx = p.getFloat(ConfigReceiver.KEY_CLOCK_DX, ConfigReceiver.DEFAULT_CLOCK_DX)
         clockDy = p.getFloat(ConfigReceiver.KEY_CLOCK_DY, ConfigReceiver.DEFAULT_CLOCK_DY)
         clockScale = p.getFloat(ConfigReceiver.KEY_CLOCK_SCALE, ConfigReceiver.DEFAULT_CLOCK_SCALE)
-        clockBox.post { applyClockTransformNow() }
+        clockBox.post {
+            applyClockTransformNow()
+            loadElementTransforms()
+        }
     }
 
     private fun applyClockTransformNow() {
@@ -918,6 +921,15 @@ class SlideshowController(
                         if (editingClock) {
                             cancelLong()
                             pinching = true
+                            if (!editGestureActive) {
+                                val hit = hitClockElement(downX, downY)
+                                if (hit >= 0) {
+                                    selectClockElement(hit)
+                                } else {
+                                    selectClockElement(-1)
+                                }
+                                editGestureActive = true
+                            }
                             pinchStartDist = twoPointerDist(e)
                             pinchBaseScale =
                                 if (selectedClockElement < 0) {
@@ -989,6 +1001,7 @@ class SlideshowController(
                             persistClockTransform()
                             persistElementTransforms()
                             pinching = false
+                            editGestureActive = true
                             // Continue dragging with whichever pointer remains (avoid a jump).
                             val rem = if (e.actionIndex == 0) 1 else 0
                             if (e.pointerCount > rem) { lastX = e.getX(rem); lastY = e.getY(rem) }
