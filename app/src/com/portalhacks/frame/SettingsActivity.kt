@@ -298,9 +298,8 @@ class SettingsActivity : ComponentActivity() {
                     ) {
                         val options = listOf("System", "12-hour", "24-hour")
                         val current = prefs.getString(ConfigReceiver.KEY_CLOCK_TIME_FORMAT, "System") ?: "System"
-                        prefs.edit()
-                            .putString(ConfigReceiver.KEY_CLOCK_TIME_FORMAT, options[(options.indexOf(current) + 1) % options.size])
-                            .apply()
+                        val next = options[(options.indexOf(current) + 1) % options.size]
+                        prefs.edit().putString(ConfigReceiver.KEY_CLOCK_TIME_FORMAT, next).apply()
                         tick++
                     }
                     Divider()
@@ -314,9 +313,8 @@ class SettingsActivity : ComponentActivity() {
                     ) {
                         val options = listOf("Full", "Abbreviated")
                         val current = prefs.getString(ConfigReceiver.KEY_CLOCK_WEEKDAY_FORMAT, "Full") ?: "Full"
-                        prefs.edit()
-                            .putString(ConfigReceiver.KEY_CLOCK_WEEKDAY_FORMAT, options[(options.indexOf(current) + 1) % options.size])
-                            .apply()
+                        val next = options[(options.indexOf(current) + 1) % options.size]
+                        prefs.edit().putString(ConfigReceiver.KEY_CLOCK_WEEKDAY_FORMAT, next).apply()
                         tick++
                     }
                     Divider()
@@ -326,9 +324,8 @@ class SettingsActivity : ComponentActivity() {
                     ) {
                         val options = listOf("MMM d, yyyy", "MMMM d, yyyy", "EEE, MMM d", "M/d/yyyy", "d MMM yyyy")
                         val current = prefs.getString(ConfigReceiver.KEY_CLOCK_DATE_FORMAT, options[0]) ?: options[0]
-                        prefs.edit()
-                            .putString(ConfigReceiver.KEY_CLOCK_DATE_FORMAT, options[(options.indexOf(current) + 1) % options.size])
-                            .apply()
+                        val next = options[(options.indexOf(current) + 1) % options.size]
+                        prefs.edit().putString(ConfigReceiver.KEY_CLOCK_DATE_FORMAT, next).apply()
                         tick++
                     }
                     Divider()
