@@ -139,6 +139,7 @@ class ConfigReceiver : BroadcastReceiver() {
         // Boolean: zoom-crop SINGLE photos to fill (vs whole photo over a blurred fill).
         // Pairs always fill.
         const val KEY_ZOOM_FILL = "zoom_fill"
+
         // Clock widget transform (set by long-press-drag/pinch on the screensaver). dx/dy are the
         // translation from the default bottom-left anchor as a fraction of screen W/H; scale is a
         // size multiplier. Floats.
