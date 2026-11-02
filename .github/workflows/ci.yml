@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-test:
@@ -30,14 +30,14 @@ jobs:
       # Generate the KtLint baseline from the unmodified main-branch source, not
       # from this feature branch (which would silently baseline newly introduced issues).
       - name: Checkout KtLint baseline source
-        if: ${{ github.ref != 'refs/heads/main' }}
+        if: ${{ github.ref != 'refs/heads/main' && !hashFiles('app/config/ktlint/baseline.xml') }}
         uses: actions/checkout@v4
         with:
           ref: main
           path: baseline-source
 
       - name: Move KtLint baseline source outside workspace
-        if: ${{ github.ref != 'refs/heads/main' }}
+        if: ${{ github.ref != 'refs/heads/main' && !hashFiles('app/config/ktlint/baseline.xml') }}
         run: mv baseline-source "$RUNNER_TEMP/baseline-source"
 
       - name: Set up JDK 17
@@ -61,7 +61,7 @@ jobs:
           ./gradlew assembleDebug testDebugUnitTest --no-daemon --stacktrace
 
       - name: Generate inherited KtLint baseline
-        if: ${{ github.ref != 'refs/heads/main' }}
+        if: ${{ github.ref != 'refs/heads/main' && !hashFiles('app/config/ktlint/baseline.xml') }}
         run: |
           # Reuse the feature branch's KtLint baseline configuration while running
           # the baseline task against main's original Kotlin source.
@@ -69,7 +69,7 @@ jobs:
           chmod +x "$RUNNER_TEMP/baseline-source/gradlew"
           (
             cd "$RUNNER_TEMP/baseline-source"
-            ./gradlew ktlintGenerateBaseline --no-daemon --stacktrace
+            ./gradlew ktlintGenerateBaseline -x ktlintKotlinScriptCheck --no-daemon --stacktrace
           )
           mkdir -p app/config/ktlint
           cp "$RUNNER_TEMP/baseline-source/app/config/ktlint/baseline.xml" app/config/ktlint/baseline.xml
@@ -77,6 +77,15 @@ jobs:
           # Keep the baseline checkout outside the workspace so KtLint cannot
           # discover or scan its Gradle scripts during feature-branch analysis.
           rm -rf "$RUNNER_TEMP/baseline-source"
+
+      - name: Commit inherited KtLint baseline once
+        if: ${{ github.ref != 'refs/heads/main' && !hashFiles('app/config/ktlint/baseline.xml') }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/config/ktlint/baseline.xml
+          git commit -m "Add inherited KtLint baseline [skip ci]"
+          git push
 
       - name: Static analysis (Android Lint, detekt, ktlint)
         run: ./gradlew lintDebug detekt ktlintCheck --no-daemon --stacktrace
