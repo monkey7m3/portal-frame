@@ -135,8 +135,9 @@ class ConfigReceiver : BroadcastReceiver() {
         const val KEY_FACE = "face_framing" // boolean: face-aware Ken Burns target
         const val KEY_AMBIENT = "ambient_color" // boolean: per-photo color glow
         const val KEY_ENHANCE = "auto_enhance" // boolean: on-device auto-levels + vibrance
-        const val KEY_ZOOM_FILL = "zoom_fill"   // boolean: zoom-crop SINGLE photos to fill (vs whole
-                                                // photo over a blurred fill). Pairs always fill.
+        // Boolean: zoom-crop SINGLE photos to fill (vs whole photo over a blurred fill).
+        // Pairs always fill.
+        const val KEY_ZOOM_FILL = "zoom_fill"
         // Clock widget transform (set by long-press-drag/pinch on the screensaver). dx/dy are the
         // translation from the default bottom-left anchor as a fraction of screen W/H; scale is a
         // size multiplier. Floats.
