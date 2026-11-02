@@ -1634,8 +1634,9 @@ class SlideshowController(
         clock.text = time
         dateLine.text = date
         val w = weather
-        weatherLine.text = when {
-            w == null -> ""
+        weatherLine.text =
+            when {
+                w == null -> ""
             w.moon -> {
                 // Clear night: draw a blue crescent (color emoji can't be tinted) + temperature.
                 val sb = SpannableStringBuilder(" ")
