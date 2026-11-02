@@ -18,7 +18,10 @@ val keystoreProps =
         if (f.exists()) FileInputStream(f).use { load(it) }
     }
 
-fun releaseSecret(env: String, prop: String): String? {
+fun releaseSecret(
+    env: String,
+    prop: String,
+): String? {
     return System.getenv(env) ?: keystoreProps.getProperty(prop)
 }
 
