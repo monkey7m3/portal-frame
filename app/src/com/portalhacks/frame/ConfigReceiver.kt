@@ -129,12 +129,12 @@ class ConfigReceiver : BroadcastReceiver() {
         const val KEY_CLOCK_WEATHER = "clock_weather" // show weather as its own overlay element
         const val DEFAULT_CLOCK_FACE = "classic"
         const val KEY_CLOCK_LOW_LIGHT = "clock_low_light" // boolean: clock-only in low light
-        const val KEY_NIGHT = "night"           // boolean: warm night dimming
+        const val KEY_NIGHT = "night" // boolean: warm night dimming
         const val KEY_ON_THIS_DAY = "on_this_day" // boolean: surface memories
-        const val KEY_CAPTIONS = "captions"     // boolean: photo date captions
-        const val KEY_FACE = "face_framing"     // boolean: face-aware Ken Burns target
+        const val KEY_CAPTIONS = "captions" // boolean: photo date captions
+        const val KEY_FACE = "face_framing" // boolean: face-aware Ken Burns target
         const val KEY_AMBIENT = "ambient_color" // boolean: per-photo color glow
-        const val KEY_ENHANCE = "auto_enhance"  // boolean: on-device auto-levels + vibrance
+        const val KEY_ENHANCE = "auto_enhance" // boolean: on-device auto-levels + vibrance
         const val KEY_ZOOM_FILL = "zoom_fill"   // boolean: zoom-crop SINGLE photos to fill (vs whole
                                                 // photo over a blurred fill). Pairs always fill.
         // Clock widget transform (set by long-press-drag/pinch on the screensaver). dx/dy are the
