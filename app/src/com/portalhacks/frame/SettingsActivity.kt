@@ -287,8 +287,14 @@ class SettingsActivity : ComponentActivity() {
                 ) {
                     ToggleRow(
                         "Clock & weather", ConfigReceiver.KEY_CLOCK, true,
-                        subtitle = "Long-press the clock on the screensaver to move or resize it.",
+                        subtitle = "Long-press the clock on the screensaver to move or resize the group.",
                     ) { tick++ }
+                    Divider()
+                    ToggleRow("Weekday", ConfigReceiver.KEY_CLOCK_WEEKDAY, true) { tick++ }
+                    Divider()
+                    ToggleRow("Calendar date", ConfigReceiver.KEY_CLOCK_DATE, true) { tick++ }
+                    Divider()
+                    ToggleRow("Weather", ConfigReceiver.KEY_CLOCK_WEATHER, true) { tick++ }
                     Divider()
                     var clockFaceId by remember {
                         mutableStateOf(
