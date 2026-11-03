@@ -729,8 +729,9 @@ class SlideshowController(
      * The user's move/resize transform ([applyClockTransform]) still composes on top of this.
      */
     private fun applyTimeVisibility() {
-        val enabled = context.getSharedPreferences(ConfigReceiver.PREFS, Context.MODE_PRIVATE)
-            .getBoolean(ConfigReceiver.KEY_CLOCK_TIME, true)
+        val enabled =
+            context.getSharedPreferences(ConfigReceiver.PREFS, Context.MODE_PRIVATE)
+                .getBoolean(ConfigReceiver.KEY_CLOCK_TIME, true)
         clock.visibility = if (enabled) View.VISIBLE else View.GONE
     }
 
@@ -1753,12 +1754,14 @@ class SlideshowController(
 
     private fun formattedClockParts(date: java.util.Date): Triple<String, String, String> {
         val p = context.getSharedPreferences(ConfigReceiver.PREFS, Context.MODE_PRIVATE)
-        val use24Hour = when (p.getString(ConfigReceiver.KEY_CLOCK_TIME_FORMAT, "System")) {
+        val use24Hour =
+            when (p.getString(ConfigReceiver.KEY_CLOCK_TIME_FORMAT, "System")) {
             "12-hour" -> false
             "24-hour" -> true
             else -> android.text.format.DateFormat.is24HourFormat(context)
         }
-        val pattern = when {
+        val pattern =
+            when {
             use24Hour -> "H:mm"
             p.getBoolean(ConfigReceiver.KEY_CLOCK_AMPM, false) -> "h:mm a"
             else -> "h:mm"
