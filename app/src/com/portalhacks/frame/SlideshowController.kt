@@ -1756,16 +1756,16 @@ class SlideshowController(
         val p = context.getSharedPreferences(ConfigReceiver.PREFS, Context.MODE_PRIVATE)
         val use24Hour =
             when (p.getString(ConfigReceiver.KEY_CLOCK_TIME_FORMAT, "System")) {
-            "12-hour" -> false
-            "24-hour" -> true
-            else -> android.text.format.DateFormat.is24HourFormat(context)
-        }
+                "12-hour" -> false
+                "24-hour" -> true
+                else -> android.text.format.DateFormat.is24HourFormat(context)
+            }
         val pattern =
             when {
-            use24Hour -> "H:mm"
-            p.getBoolean(ConfigReceiver.KEY_CLOCK_AMPM, false) -> "h:mm a"
-            else -> "h:mm"
-        }
+                use24Hour -> "H:mm"
+                p.getBoolean(ConfigReceiver.KEY_CLOCK_AMPM, false) -> "h:mm a"
+                else -> "h:mm"
+            }
         val weekdayPattern =
             if (p.getString(ConfigReceiver.KEY_CLOCK_WEEKDAY_FORMAT, "Full") == "Abbreviated") "EEE" else "EEEE"
         val datePattern = p.getString(ConfigReceiver.KEY_CLOCK_DATE_FORMAT, "MMM d, yyyy") ?: "MMM d, yyyy"
